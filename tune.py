@@ -1,3 +1,4 @@
+from xgboost import XGBClassifier
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -171,3 +172,16 @@ print(classification_report(y_test, y_pred))
 
 print("\nConfusion Matrix:")
 print(cm)
+
+import matplotlib.pyplot as plt
+
+importances = final_model.get_booster().get_score(importance_type='weight')
+importances = dict(sorted(importances.items(), key=lambda x: x[1], reverse=True))
+
+plt.figure(figsize=(10, 6))
+plt.barh(list(importances.keys())[:15], list(importances.values())[:15])
+plt.xlabel('Weight')
+plt.title('Top 15 Feature Importances')
+plt.gca().invert_yaxis()
+plt.tight_layout()
+plt.show()
