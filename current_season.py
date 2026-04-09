@@ -48,6 +48,12 @@ model.load_model("xgb_final.json")
 curr["Draft_Prob"] = model.predict_proba(curr[feature_cols])[:, 1]
 
 # -----------------------------
+# Create per-game stats for dashboard
+# -----------------------------
+curr["PPG"] = curr["PTS"] / curr["GP"].replace(0, 1)
+curr["APG"] = curr["AST"] / curr["GP"].replace(0, 1)
+curr["RPG"] = curr["TRB"] / curr["GP"].replace(0, 1)
+# -----------------------------
 # Print top 10 players
 # -----------------------------
 top10 = curr.sort_values("Draft_Prob", ascending=False).head(10)
@@ -93,5 +99,18 @@ result = con.execute("""
 
 print("\nTop 10 from DuckDB:")
 print(result)
+
+con.close()
+con = duckdb.connect("curr_season.duckdb")
+
+msu_result = con.execute("""
+    SELECT Player, Team, Draft_Prob
+    FROM curr
+    WHERE Team = 'Michigan State'
+    ORDER BY Draft_Prob DESC
+""").fetchdf()
+
+print("\nMichigan State players from DuckDB:")
+print(msu_result)
 
 con.close()
